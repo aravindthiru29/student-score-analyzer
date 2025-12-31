@@ -25,8 +25,8 @@ A beginner-friendly Python project that analyzes student marks from a CSV file a
 ## Project Structure
 
 student-score-analyzer/
-├── analyze_scores.py
 ├── score.csv
+├── analyze_scores.py
 └── subject_averages.png
 
 yaml
