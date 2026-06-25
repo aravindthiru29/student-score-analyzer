@@ -1,0 +1,98 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+}
+
+.header {
+    padding: 2rem 1.5rem;
+    background: #0f4c81;
+    color: #ffffff;
+    text-align: center;
+}
+
+.container {
+    width: min(1100px, 96%);
+    margin: 1.5rem auto 2rem;
+    display: grid;
+    gap: 1.5rem;
+}
+
+.overview-grid,
+.stats-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.overview-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.overview-card,
+.stat-card,
+.chart-section,
+.table-section {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 24px rgba(15, 23, 43, 0.08);
+    padding: 1.3rem;
+}
+
+.overview-card h3,
+.stat-card h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+    color: #0f4c81;
+}
+
+.overview-card p,
+.stat-card p {
+    margin: 0.25rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.chart-section img {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    border-radius: 16px;
+    margin-top: 1rem;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+thead {
+    background: #0f4c81;
+    color: #ffffff;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 0.95rem 0.85rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+tbody tr:hover {
+    background: #eef5ff;
+}
+
+.footer {
+    text-align: center;
+    padding: 1rem 0;
+    color: #475569;
+}

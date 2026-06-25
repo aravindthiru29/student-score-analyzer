@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Score Analyzer Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <h1>Student Score Analyzer</h1>
+        <p>Python-based data analysis dashboard</p>
+    </header>
+    <main class="container">
+        <section class="overview-grid">
+            <article class="overview-card">
+                <h3>Total Students</h3>
+                <p>{{ overall.students }}</p>
+            </article>
+            <article class="overview-card">
+                <h3>Passed</h3>
+                <p>{{ overall.passed }}</p>
+            </article>
+            <article class="overview-card">
+                <h3>Failed</h3>
+                <p>{{ overall.failed }}</p>
+            </article>
+            <article class="overview-card">
+                <h3>Topper</h3>
+                <p>{{ overall.topper_name }} ({{ overall.topper_total }})</p>
+            </article>
+        </section>
+
+        <section class="stats-section">
+            <h2>Subject Statistics</h2>
+            <div class="stats-grid">
+                {% for subject, values in stats.items() %}
+                <article class="stat-card">
+                    <h3>{{ subject }}</h3>
+                    <p>Mean: {{ values.mean }}</p>
+                    <p>Min: {{ values.min }}</p>
+                    <p>Max: {{ values.max }}</p>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="chart-section">
+            <h2>Subject Average Scores</h2>
+            <img src="{{ url_for('chart_png') }}" alt="Subject Average Chart">
+        </section>
+
+        <section class="table-section">
+            <h2>Top Students</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Total</th>
+                            <th>Average</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students[:10] %}
+                        <tr>
+                            <td>{{ student.Name }}</td>
+                            <td>{{ student.Total }}</td>
+                            <td>{{ student.Average }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <p>Built by Aravind | Python + HTML + CSS</p>
+    </footer>
+</body>
+</html>
