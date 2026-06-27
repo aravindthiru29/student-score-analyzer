@@ -2,13 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Score Analyzer Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header class="header">
-        <h1>Student Score Analyzer</h1>
-        <p>Python-based data analysis dashboard</p>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>Student Score Analyzer</h1>
+                <p>Python-based data analysis dashboard</p>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
     </header>
     <main class="container">
         <section class="overview-grid">
@@ -46,7 +55,9 @@
 
         <section class="chart-section">
             <h2>Subject Average Scores</h2>
-            <img src="{{ url_for('chart_png') }}" alt="Subject Average Chart">
+            <div class="chart-container">
+                <canvas id="subjectChart"></canvas>
+            </div>
         </section>
 
         <section class="table-section">
@@ -74,7 +85,99 @@
         </section>
     </main>
     <footer class="footer">
-        <p>Built by Aravind T| Python + HTML + CSS</p>
+        <p>Built by Aravind T | Python + HTML + CSS</p>
     </footer>
+    <script>
+        // Dark mode toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeIcon();
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+            updateChartTheme();
+        });
+        
+        function updateThemeIcon() {
+            const theme = html.getAttribute('data-theme');
+            themeToggle.querySelector('.theme-icon').textContent = theme === 'light' ? '🌙' : '☀️';
+        }
+        
+        // Interactive Chart.js visualization
+        const ctx = document.getElementById('subjectChart').getContext('2d');
+        let subjectChart = null;
+        
+        function initChart(data) {
+            const theme = html.getAttribute('data-theme');
+            const isDark = theme === 'dark';
+            const textColor = isDark ? '#e5e7eb' : '#1f2937';
+            const gridColor = isDark ? '#374151' : '#e5e7eb';
+            const backgroundColor = isDark ? '#1f2937' : '#ffffff';
+            
+            if (subjectChart) {
+                subjectChart.destroy();
+            }
+            
+            subjectChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.subjects,
+                    datasets: [{
+                        label: 'Average Score',
+                        data: data.means,
+                        backgroundColor: 'rgba(31, 119, 180, 0.8)',
+                        borderColor: 'rgba(31, 119, 180, 1)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor,
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { color: textColor },
+                            grid: { color: gridColor, drawBorder: false },
+                            title: { display: true, text: 'Average Score' }
+                        },
+                        x: {
+                            ticks: { color: textColor },
+                            grid: { display: false, drawBorder: false }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateChartTheme() {
+            fetch('{{ url_for("api_chart_data") }}')
+                .then(res => res.json())
+                .then(data => initChart(data));
+        }
+        
+        // Load chart on page load
+        fetch('{{ url_for("api_chart_data") }}')
+            .then(res => res.json())
+            .then(data => initChart(data));
+    </script>
 </body>
 </html>

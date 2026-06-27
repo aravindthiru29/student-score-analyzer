@@ -84,5 +84,16 @@ def api_summary():
     return jsonify({"subject_stats": stats, "overall": overall})
 
 
+@app.route("/api/chart-data")
+def api_chart_data():
+    df = load_data(CSV_PATH)
+    numeric = [c for c in df.columns if c != "Name"]
+    means = df[numeric].mean().round(2)
+    return jsonify({
+        "subjects": list(means.index),
+        "means": list(means.values)
+    })
+
+
 if __name__ == "__main__":
     app.run(debug=True)
