@@ -3,181 +3,627 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Score Analyzer Dashboard</title>
+    <title>Student Score Analyzer - Dashboard</title>
+    <meta name="description" content="Modern student score analysis dashboard with CSV, Excel, and PDF upload capabilities.">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .hidden-row { display: none !important; }
+        .table-action-footer {
+            display: flex;
+            justify-content: center;
+            padding-top: 1rem;
+        }
+    </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-content">
-            <div class="header-title">
-                <h1>Student Score Analyzer</h1>
-                <p>Python-based data analysis dashboard</p>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                </div>
+                <div class="brand-title">Score<span>Pulse</span></div>
             </div>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-                <span class="theme-icon">🌙</span>
-            </button>
+
+            <nav class="sidebar-menu">
+                <div>
+                    <div class="menu-group-title">MAIN MENU</div>
+                    <ul class="menu-list">
+                        <li class="menu-item active" id="navOverview">
+                            <a href="#overview">
+                                <span class="menu-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                                    </svg>
+                                </span> Overview
+                            </a>
+                        </li>
+                        <li class="menu-item" id="navUpload">
+                            <button type="button" onclick="triggerFileInput()">
+                                <span class="menu-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                </span> Upload Data
+                            </button>
+                        </li>
+                        <li class="menu-item" id="navAnalytics">
+                            <a href="#analytics">
+                                <span class="menu-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="20" x2="18" y2="10"/>
+                                        <line x1="12" y1="20" x2="12" y2="4"/>
+                                        <line x1="6" y1="20" x2="6" y2="14"/>
+                                    </svg>
+                                </span> Analytics
+                            </a>
+                        </li>
+                        <li class="menu-item" id="navRankings">
+                            <a href="#rankings">
+                                <span class="menu-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="8" r="6"/>
+                                        <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                                    </svg>
+                                </span> Rankings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="menu-group-title">SUPPORTED FORMATS</div>
+                    <ul class="menu-list">
+                        <li class="menu-item">
+                            <button type="button" onclick="triggerFileInput()">
+                                <span class="menu-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                    </svg>
+                                </span> CSV Files
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button type="button" onclick="triggerFileInput()">
+                                <span class="menu-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                        <polyline points="10 9 9 9 8 9"/>
+                                    </svg>
+                                </span> Excel (.xlsx)
+                            </button>
+                        </li>
+                        <li class="menu-item">
+                            <button type="button" onclick="triggerFileInput()">
+                                <span class="menu-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="9" y1="15" x2="15" y2="15"/>
+                                    </svg>
+                                </span> PDF Documents
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-card">
+                    <h4>Python Powered</h4>
+                    <p>Flask &bull; Pandas &bull; Chart.js</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-search">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="searchInput" placeholder="Search student..." onkeyup="filterTable()">
+                </div>
+
+                <div class="header-actions">
+                    <button class="icon-btn" id="themeToggle" title="Toggle theme">
+                        <span class="theme-icon">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                        </span>
+                    </button>
+                    <div class="user-profile">
+                        <div class="avatar">AT</div>
+                        <div class="user-info">
+                            <span class="user-name">Aravind T</span>
+                            <span class="user-role">Administrator</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <main class="content-body">
+                <!-- Upload Section Banner -->
+                <section class="upload-card" id="upload">
+                    <form id="uploadForm" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+                        <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls,.pdf" style="display: none;">
+                    </form>
+
+                    {% if has_data %}
+                    <div class="upload-active">
+                        <div class="upload-active-info">
+                            <span class="upload-active-icon">
+                                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </span>
+                            <div>
+                                <strong>{{ filename }}</strong>
+                                <span class="upload-active-label">Data Analyzed & Ready</span>
+                            </div>
+                        </div>
+                        <div class="upload-active-actions">
+                            <button type="button" class="btn btn-outline" id="replaceBtn">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                Replace Dataset
+                            </button>
+                            <form action="{{ url_for('clear') }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                                    Clear
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="upload-dropzone" id="dropzone">
+                        <div class="upload-icon-wrapper">
+                            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                        </div>
+                        <h2>Upload Student Score File</h2>
+                        <p class="upload-subtitle">Drag & drop your file here or choose from your computer</p>
+                        <div class="upload-actions-row">
+                            <button type="button" class="btn btn-primary" id="browseBtn">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                                Select File
+                            </button>
+                            <a href="{{ url_for('sample') }}" class="btn btn-secondary" id="sampleBtn">
+                                Load Sample Data
+                            </a>
+                        </div>
+                        <div class="upload-formats">
+                            <span class="format-badge">CSV</span>
+                            <span class="format-badge">Excel (.xlsx/.xls)</span>
+                            <span class="format-badge">PDF</span>
+                        </div>
+                        <p class="upload-hint">
+                            Ensure file has a <strong>Name</strong> column and numeric <strong>Subject Score</strong> columns.
+                        </p>
+                    </div>
+                    {% endif %}
+                </section>
+
+                <!-- Loading overlay -->
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                    <p>Processing Score Analytics...</p>
+                </div>
+
+                <!-- Toast Notifications -->
+                <div class="toast-container" id="toastContainer"></div>
+
+                {% if has_data %}
+                <!-- Metric Summary Grid (Overview Summary) -->
+                <section class="metrics-grid" id="overview">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Total Students</span>
+                            <div class="metric-icon-box">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value">{{ overall.students }}</div>
+                        <div class="metric-sub">Active enrolled records</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Passed Students</span>
+                            <div class="metric-icon-box" style="color: var(--success); background: var(--success-bg);">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value">{{ overall.passed }}</div>
+                        <span class="metric-badge success">
+                            {% if overall.students > 0 %}{{ ((overall.passed / overall.students) * 100) | round(1) }}% Pass Rate{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Failed Students</span>
+                            <div class="metric-icon-box" style="color: var(--danger); background: var(--danger-bg);">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value">{{ overall.failed }}</div>
+                        <span class="metric-badge danger">
+                            {% if overall.students > 0 %}{{ ((overall.failed / overall.students) * 100) | round(1) }}% Needs Attention{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-title">Class Topper</span>
+                            <div class="metric-icon-box" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                            </div>
+                        </div>
+                        <div class="metric-value" style="font-size: 1.3rem; color: var(--accent);">{{ overall.topper_name }}</div>
+                        <div class="metric-sub">Highest Total: <strong>{{ overall.topper_total }}</strong> pts</div>
+                    </div>
+                </section>
+
+                <!-- Visual Charts Section (Analytics Overview) -->
+                <section class="charts-grid" id="analytics">
+                    <div class="chart-card">
+                        <div class="section-header">
+                            <h2 class="section-title">Average Scores by Subject</h2>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="subjectChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="section-header">
+                            <h2 class="section-title">Pass vs Fail</h2>
+                        </div>
+                        <div class="chart-box">
+                            <canvas id="passFailChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Top Performers Summary Table (Short & Concise Preview) -->
+                <section class="table-card" id="rankings">
+                    <div class="section-header">
+                        <h2 class="section-title">Top Performers Ranking</h2>
+                        <span class="upload-hint">Showing Top Performers</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="studentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Student Name</th>
+                                    <th>Total Score</th>
+                                    <th>Average Score</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr class="student-row {% if loop.index > 5 %}hidden-row{% endif %}">
+                                    <td>
+                                        <span class="rank-badge {% if loop.index == 1 %}top-1{% elif loop.index == 2 %}top-2{% elif loop.index == 3 %}top-3{% endif %}">
+                                            {{ loop.index }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ student.Name }}</strong></td>
+                                    <td>{{ student.Total }}</td>
+                                    <td>{{ student.Average }}</td>
+                                    <td>
+                                        {% if student.Average >= 50 %}
+                                        <span class="status-tag pass">Passed</span>
+                                        {% else %}
+                                        <span class="status-tag fail">Failed</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if students | length > 5 %}
+                    <div class="table-action-footer">
+                        <button type="button" class="btn btn-secondary" id="toggleTableBtn" onclick="toggleTableRows()">
+                            Show All {{ students | length }} Students
+                        </button>
+                    </div>
+                    {% endif %}
+                </section>
+                {% endif %}
+            </main>
         </div>
-    </header>
-    <main class="container">
-        <section class="overview-grid">
-            <article class="overview-card">
-                <h3>Total Students</h3>
-                <p>{{ overall.students }}</p>
-            </article>
-            <article class="overview-card">
-                <h3>Passed</h3>
-                <p>{{ overall.passed }}</p>
-            </article>
-            <article class="overview-card">
-                <h3>Failed</h3>
-                <p>{{ overall.failed }}</p>
-            </article>
-            <article class="overview-card">
-                <h3>Topper</h3>
-                <p>{{ overall.topper_name }} ({{ overall.topper_total }})</p>
-            </article>
-        </section>
+    </div>
 
-        <section class="stats-section">
-            <h2>Subject Statistics</h2>
-            <div class="stats-grid">
-                {% for subject, values in stats.items() %}
-                <article class="stat-card">
-                    <h3>{{ subject }}</h3>
-                    <p>Mean: {{ values.mean }}</p>
-                    <p>Min: {{ values.min }}</p>
-                    <p>Max: {{ values.max }}</p>
-                </article>
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="chart-section">
-            <h2>Subject Average Scores</h2>
-            <div class="chart-container">
-                <canvas id="subjectChart"></canvas>
-            </div>
-        </section>
-
-        <section class="table-section">
-            <h2>Top Students</h2>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Total</th>
-                            <th>Average</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for student in students[:10] %}
-                        <tr>
-                            <td>{{ student.Name }}</td>
-                            <td>{{ student.Total }}</td>
-                            <td>{{ student.Average }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-    <footer class="footer">
-        <p>Built by Aravind T | Python + HTML + CSS</p>
-    </footer>
     <script>
-        // Dark mode toggle
+        /* Theme Toggle */
         const themeToggle = document.getElementById('themeToggle');
         const html = document.documentElement;
-        
-        // Load saved theme preference
         const savedTheme = localStorage.getItem('theme') || 'light';
         html.setAttribute('data-theme', savedTheme);
         updateThemeIcon();
-        
+
         themeToggle.addEventListener('click', () => {
-            const currentTheme = html.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            const current = html.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
             updateThemeIcon();
-            updateChartTheme();
+            if (typeof initCharts === 'function') initCharts();
         });
-        
+
         function updateThemeIcon() {
             const theme = html.getAttribute('data-theme');
-            themeToggle.querySelector('.theme-icon').textContent = theme === 'light' ? '🌙' : '☀️';
+            const iconSpan = themeToggle.querySelector('.theme-icon');
+            if (theme === 'light') {
+                iconSpan.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+            } else {
+                iconSpan.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+            }
         }
-        
-        // Interactive Chart.js visualization
-        const ctx = document.getElementById('subjectChart').getContext('2d');
+
+        /* File Upload Logic */
+        const fileInput = document.getElementById('fileInput');
+        const uploadForm = document.getElementById('uploadForm');
+        const dropzone = document.getElementById('dropzone');
+        const browseBtn = document.getElementById('browseBtn');
+        const replaceBtn = document.getElementById('replaceBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const toastContainer = document.getElementById('toastContainer');
+
+        function triggerFileInput() {
+            fileInput.click();
+        }
+
+        if (browseBtn) browseBtn.addEventListener('click', (e) => { e.stopPropagation(); triggerFileInput(); });
+        if (replaceBtn) replaceBtn.addEventListener('click', (e) => { e.stopPropagation(); triggerFileInput(); });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files && fileInput.files.length > 0) {
+                loadingOverlay.classList.add('active');
+                uploadForm.submit();
+            }
+        });
+
+        if (dropzone) {
+            dropzone.addEventListener('click', (e) => {
+                if (e.target.closest('#sampleBtn')) return;
+                triggerFileInput();
+            });
+
+            ['dragenter', 'dragover'].forEach(evt => {
+                dropzone.addEventListener(evt, e => {
+                    e.preventDefault();
+                    dropzone.classList.add('dragover');
+                });
+            });
+
+            ['dragleave', 'drop'].forEach(evt => {
+                dropzone.addEventListener(evt, e => {
+                    e.preventDefault();
+                    dropzone.classList.remove('dragover');
+                });
+            });
+
+            dropzone.addEventListener('drop', e => {
+                const files = e.dataTransfer.files;
+                if (files && files.length > 0) {
+                    fileInput.files = files;
+                    loadingOverlay.classList.add('active');
+                    uploadForm.submit();
+                }
+            });
+        }
+
+        function showToast(message, type = 'error') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        {% if error %}
+        showToast("{{ error }}", "error");
+        {% endif %}
+
+        /* Toggle Table Rows Preview */
+        let showingAllRows = false;
+        function toggleTableRows() {
+            const hiddenRows = document.querySelectorAll('.student-row');
+            const btn = document.getElementById('toggleTableBtn');
+            showingAllRows = !showingAllRows;
+
+            hiddenRows.forEach((row, index) => {
+                if (index >= 5) {
+                    if (showingAllRows) {
+                        row.classList.remove('hidden-row');
+                    } else {
+                        row.classList.add('hidden-row');
+                    }
+                }
+            });
+
+            if (btn) {
+                btn.textContent = showingAllRows ? "Show Top 5 Only" : "Show All Students";
+            }
+        }
+
+        /* Search Filter Table */
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('studentsTable');
+            if (!table) return;
+            const rows = document.querySelectorAll('.student-row');
+
+            if (filter.length > 0) {
+                rows.forEach(row => {
+                    let text = row.textContent || row.innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        row.classList.remove('hidden-row');
+                    } else {
+                        row.classList.add('hidden-row');
+                    }
+                });
+            } else {
+                rows.forEach((row, index) => {
+                    if (!showingAllRows && index >= 5) {
+                        row.classList.add('hidden-row');
+                    } else {
+                        row.classList.remove('hidden-row');
+                    }
+                });
+            }
+        }
+
+        /* Active Sidebar Highlight on Click */
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        /* Charts */
+        const hasData = {% if has_data %}true{% else %}false{% endif %};
+
         let subjectChart = null;
-        
-        function initChart(data) {
+        let passFailChart = null;
+
+        function getThemeColors() {
             const theme = html.getAttribute('data-theme');
             const isDark = theme === 'dark';
-            const textColor = isDark ? '#e5e7eb' : '#1f2937';
-            const gridColor = isDark ? '#374151' : '#e5e7eb';
-            const backgroundColor = isDark ? '#1f2937' : '#ffffff';
-            
-            if (subjectChart) {
-                subjectChart.destroy();
-            }
-            
-            subjectChart = new Chart(ctx, {
-                type: 'bar',
+            return {
+                text: isDark ? '#f8fafc' : '#1e293b',
+                grid: isDark ? '#334155' : '#e2e8f0',
+                bg: isDark ? '#1e293b' : '#ffffff',
+            };
+        }
+
+        function initCharts() {
+            if (!hasData) return;
+            const colors = getThemeColors();
+
+            fetch('{{ url_for("api_chart_data") }}')
+                .then(res => res.json())
+                .then(data => {
+                    const ctx = document.getElementById('subjectChart').getContext('2d');
+                    if (subjectChart) subjectChart.destroy();
+
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+                    gradient.addColorStop(0, 'rgba(255, 107, 0, 0.85)');
+                    gradient.addColorStop(1, 'rgba(255, 107, 0, 0.15)');
+
+                    subjectChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: data.subjects,
+                            datasets: [{
+                                label: 'Average Score',
+                                data: data.means,
+                                backgroundColor: gradient,
+                                borderColor: 'rgba(255, 107, 0, 1)',
+                                borderWidth: 2,
+                                borderRadius: 10,
+                                borderSkipped: false,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: { color: colors.text, font: { size: 13, family: 'Inter', weight: '600' } }
+                                },
+                                tooltip: {
+                                    backgroundColor: colors.bg,
+                                    titleColor: colors.text,
+                                    bodyColor: colors.text,
+                                    borderColor: colors.grid,
+                                    borderWidth: 1,
+                                    cornerRadius: 8,
+                                    padding: 12,
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: { color: colors.text, font: { family: 'Inter' } },
+                                    grid: { color: colors.grid },
+                                    title: { display: true, text: 'Average Score', color: colors.text, font: { family: 'Inter' } }
+                                },
+                                x: {
+                                    ticks: { color: colors.text, font: { family: 'Inter' } },
+                                    grid: { display: false }
+                                }
+                            },
+                            animation: { duration: 800, easing: 'easeOutQuart' }
+                        }
+                    });
+                });
+
+            const pieCtx = document.getElementById('passFailChart').getContext('2d');
+            if (passFailChart) passFailChart.destroy();
+            passFailChart = new Chart(pieCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: data.subjects,
+                    labels: ['Passed', 'Failed'],
                     datasets: [{
-                        label: 'Average Score',
-                        data: data.means,
-                        backgroundColor: 'rgba(31, 119, 180, 0.8)',
-                        borderColor: 'rgba(31, 119, 180, 1)',
-                        borderWidth: 2,
-                        borderRadius: 6,
-                        tension: 0.4
+                        data: [{% if has_data %}{{ overall.passed }}, {{ overall.failed }}{% else %}0, 0{% endif %}],
+                        backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(239, 68, 68, 0.85)'],
+                        borderColor: [colors.bg, colors.bg],
+                        borderWidth: 4,
+                        hoverOffset: 10,
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
                     plugins: {
                         legend: {
-                            labels: {
-                                color: textColor,
-                                font: { size: 12 }
-                            }
+                            position: 'bottom',
+                            labels: { color: colors.text, font: { size: 13, family: 'Inter', weight: '600' }, padding: 16 }
+                        },
+                        tooltip: {
+                            backgroundColor: colors.bg,
+                            titleColor: colors.text,
+                            bodyColor: colors.text,
+                            borderColor: colors.grid,
+                            borderWidth: 1,
+                            cornerRadius: 8,
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: { color: textColor },
-                            grid: { color: gridColor, drawBorder: false },
-                            title: { display: true, text: 'Average Score' }
-                        },
-                        x: {
-                            ticks: { color: textColor },
-                            grid: { display: false, drawBorder: false }
-                        }
-                    }
+                    animation: { animateRotate: true, duration: 1000 }
                 }
             });
         }
-        
-        function updateChartTheme() {
-            fetch('{{ url_for("api_chart_data") }}')
-                .then(res => res.json())
-                .then(data => initChart(data));
-        }
-        
-        // Load chart on page load
-        fetch('{{ url_for("api_chart_data") }}')
-            .then(res => res.json())
-            .then(data => initChart(data));
+
+        if (hasData) initCharts();
     </script>
 </body>
 </html>
